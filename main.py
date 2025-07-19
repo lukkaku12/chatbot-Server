@@ -101,13 +101,15 @@ def chatbotResponse():
     
 
     response = client.chat.completions.create(
-                model="deepseek/deepseek-r1",
-                messages=prompt,
-                temperature=0.7,
-                max_tokens=800
-            )
-    
-    respuesta_bot = response.choices[0].message.content.strip()
+        model="deepseek-reasoner",
+        messages=prompt,
+        temperature=0.7,
+        max_tokens=800
+    )
+    print(response, 'respuesta')
+
+    # AIMLAPI response format: response['choices'][0]['message']['content']
+    respuesta_bot = response["choices"][0]["message"]["content"].strip()
     
     return jsonify({"status": 200, "message": respuesta_bot})
 
