@@ -62,7 +62,7 @@ def chatbotResponse():
     
     message = userReq['mensaje']
 
-    client = LLM(DEEPSEEK_API_KEY)
+    client = LLM(AIML_API_KEY)
 
     system_prompt = (
             "Eres un experto senior en ciberseguridad. Responde con precisión, claridad y profesionalismo, proporcionando información relevante y aplicable. "
