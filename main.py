@@ -9,13 +9,44 @@ CORS(app)
 
 load_dotenv()
 
-DEEPSEEK_API_KEY=os.getenv('DEEPSEEK_API_KEY')
+AIML_API_KEY = os.getenv('DEEPSEEK_API_KEY')
 
-def LLM(DEEPSEEK_CREDENTIALS):
+def LLM(AIML_CREDENTIALS):
     try:
-        return OpenAI(api_key=DEEPSEEK_CREDENTIALS, base_url="https://api.deepseek.com/v1")
+        class ChatCompletions:
+            def __init__(self, api_key, base_url):
+                self.api_key = api_key
+                self.base_url = base_url
+
+            def create(self, model, messages, temperature=0.7, max_tokens=800):
+                url = f"{self.base_url}/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                }
+                payload = {
+                    "model": model,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens
+                }
+                res = requests.post(url, headers=headers, json=payload)
+                res.raise_for_status()
+                return res.json()
+
+        class Chat:
+            def __init__(self, api_key, base_url):
+                self.completions = ChatCompletions(api_key, base_url)
+
+        class AIMLClient:
+            def __init__(self, api_key):
+                self.api_key = api_key
+                self.base_url = "https://api.aimlapi.com/v1"
+                self.chat = Chat(api_key, self.base_url)
+
+        return AIMLClient(AIML_CREDENTIALS)
     except Exception as e:
-        raise ValueError("Error al inicializar el cliente DeepSeek", e)
+        raise ValueError("Error al inicializar el cliente AIMLAPI", e)
 
 @app.route('/chatbot',methods=['POST'])
 def chatbotResponse():
@@ -69,7 +100,7 @@ def chatbotResponse():
     
 
     response = client.chat.completions.create(
-                model="deepseek-chat",
+                model="deepseek/deepseek-r1",
                 messages=prompt,
                 temperature=0.7,
                 max_tokens=800
